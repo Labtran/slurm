@@ -50,15 +50,51 @@ Existem páginas de manual para todos os daemons, comandos e funções de API do
 
 **sacct** é usado para relatar informações de contabilidade do trabalho ou da etapa do trabalho sobre trabalhos ativos ou concluídos.
 
+```
+# sacct
+Jobid      Jobname    Partition    Account AllocCPUS State     ExitCode
+---------- ---------- ---------- ---------- ---------- ---------- --------
+2          script01   srun       acct1               1 RUNNING           0
+3          script02   srun       acct1               1 RUNNING           0
+4          endscript  srun       acct1               1 RUNNING           0
+4.0  
+```
+
 **salloc** é usado para alocar recursos para um trabalho em tempo real. Normalmente, é usado para alocar recursos e gerar um shell. O shell é então usado para executar comandos srun para iniciar tarefas paralelas.
 
+```
+$ salloc -n3 --mem-per-cpu=100 --threads-per-core=1
+salloc: Granted job allocation 17200
+$ sacct -j $SLURM_JOB_ID -X -o jobid%7,reqtres%35,alloctres%35
+  JobID                             ReqTRES                           AllocTRES
+------- ----------------------------------- -----------------------------------
+  17200     billing=3,cpu=3,mem=300M,node=1     billing=6,cpu=6,mem=300M,node=1
+
+```
+
 **sattach** é usado para anexar entrada, saída e erro padrão, além de recursos de sinal, a um trabalho ou etapa de trabalho em execução no momento. É possível anexar e desconectar trabalhos várias vezes.
+```
+##Anexo ao job 15, passo 0:
+$ sattach 15.0
+##Limite de saída para 5 tarefas para o job 65386, passo 15:
+$ sattach --output-filter 5 65386.15
+
+```
 
 **sbatch** é usado para enviar um script de trabalho para execução posterior. Normalmente, o script contém um ou mais comandos srun para iniciar tarefas paralelas.
+```
+sbatch script.sh
+```
 
 **sbcast** é usado para transferir um arquivo do disco local para o disco local nos nós alocados para um trabalho. Isso pode ser usado para usar efetivamente nós de computação sem disco ou oferecer melhor desempenho em relação a um sistema de arquivos compartilhado.
+```
+sbcast my.prog /tmp/my.prog
+```
 
 **scancel** é usado para cancelar um trabalho ou etapa de trabalho pendente ou em execução. Também pode ser usado para enviar um sinal arbitrário a todos os processos associados a um trabalho ou etapa de trabalho em execução.
+```
+scancel 1234
+```
 
 **scontrol** é a ferramenta administrativa usada para visualizar e/ou modificar o estado do Slurm. Observe que muitos comandos do scontrol só podem ser executados como usuário root.
 

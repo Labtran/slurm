@@ -83,32 +83,100 @@ $ sattach --output-filter 5 65386.15
 
 **sbatch** é usado para enviar um script de trabalho para execução posterior. Normalmente, o script contém um ou mais comandos srun para iniciar tarefas paralelas.
 ```
-sbatch script.sh
+$ sbatch script.sh
 ```
 
 **sbcast** é usado para transferir um arquivo do disco local para o disco local nos nós alocados para um trabalho. Isso pode ser usado para usar efetivamente nós de computação sem disco ou oferecer melhor desempenho em relação a um sistema de arquivos compartilhado.
 ```
-sbcast my.prog /tmp/my.prog
+$ sbcast my.prog /tmp/my.prog
 ```
 
 **scancel** é usado para cancelar um trabalho ou etapa de trabalho pendente ou em execução. Também pode ser usado para enviar um sinal arbitrário a todos os processos associados a um trabalho ou etapa de trabalho em execução.
 ```
-scancel 1234
+$ scancel 1234
 ```
 
 **scontrol** é a ferramenta administrativa usada para visualizar e/ou modificar o estado do Slurm. Observe que muitos comandos do scontrol só podem ser executados como usuário root.
+```
+$ scontrol
+scontrol: show part debug
+PartitionName=debug
+   AllocNodes=ALL AllowGroups=ALL Default=YES
+   DefaultTime=NONE DisableRootJobs=NO Hidden=NO
+   MaxNodes=UNLIMITED MaxTime=UNLIMITED MinNodes=1
+   Nodes=snowflake[0-48]
+   Priority=1 RootOnly=NO OverSubscribe=YES:4
+   State=UP TotalCPUs=694 TotalNodes=49
+scontrol: update PartitionName=debug MaxTime=60:00 MaxNodes=4
+scontrol: show job 71701
+JobId=71701 Name=hostname
+   UserId=da(1000) GroupId=da(1000)
+   Priority=66264 Account=none QOS=normal WCKey=*123
+   JobState=COMPLETED Reason=None Dependency=(null)
+   TimeLimit=UNLIMITED Requeue=1 Restarts=0 BatchFlag=0 ExitCode=0:0
+   SubmitTime=2010-01-05T10:58:40 EligibleTime=2010-01-05T10:58:40
+   StartTime=2010-01-05T10:58:40 EndTime=2010-01-05T10:58:40
+   SuspendTime=None SecsPreSuspend=0
+   Partition=debug AllocNode:Sid=snowflake:4702
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=snowflake0
+   NumNodes=1 NumCPUs=10 CPUs/Task=2 ReqS:C:T=1:1:1
+   MinCPUsNode=2 MinMemoryNode=0 MinTmpDiskNode=0
+   Features=(null) Reservation=(null)
+   OverSubscribe=OK Contiguous=0 Licenses=(null) Network=(null)
+scontrol: update JobId=71701 TimeLimit=30:00 Priority=500
+scontrol: show hostnames tux[1-3]
+tux1
+tux2
+tux3
+scontrol: create res StartTime=2009-04-01T08:00:00 Duration=5:00:00 Users=dbremer NodeCnt=10
+Reservation created: dbremer_1
+scontrol: update Reservation=dbremer_1 Flags=Maint NodeCnt=20
+scontrol: delete Reservation=dbremer_1
+scontrol: quit
+```
 
 **sinfo** informa o estado das partições e dos nós gerenciados pelo Slurm. Ele tem uma grande variedade de opções de filtragem, classificação e formatação.
+```
+$ sinfo
+PARTITION AVAIL TIMELIMIT NODES STATE  NODELIST
+batch     up     infinite     2 alloc  adev[8-9]
+batch     up     infinite     6 idle   adev[10-15]
+debug*    up        30:00     8 idle   adev[0-7]
+```
 
 **sprio** é usado para exibir uma visão detalhada dos componentes que afetam a prioridade de um trabalho.
+```
+$ sprio
+  JOBID   PRIORITY        AGE  FAIRSHARE    JOBSIZE  PARTITION        QOS
+  65539      62664          0      51664       1000      10000          0
+  65540      62663          0      51663       1000      10000          0
+  65541      62662          0      51662       1000      10000          0
+```
 
 **squeue** informa o estado de trabalhos ou etapas de trabalho. Ele tem uma grande variedade de opções de filtragem, classificação e formatação.Por padrão, ele informa os trabalhos em execução em ordem de prioridade e, em seguida, os trabalhos pendentes em ordem de prioridade.
+```
+$ squeue -p debug -t COMPLETED -o "%.6i %p"
+ JOBID PRIORITY
+ 65543 99993
+ 65544 99992
+ 65545 99991
+```
 
 **srun** é usado para enviar um trabalho para execução ou iniciar etapas de trabalho em tempo real. O srun tem uma grande variedade de opções para especificar os requisitos de recursos, incluindo: contagem mínima e máxima de nós, contagem de processadores, nós específicos a serem usados ou não e características específicas do nó (tanta memória, espaço em disco, determinados recursos necessários etc.). Um trabalho pode conter várias etapas de trabalho executadas sequencialmente ou em paralelo em recursos independentes ou compartilhados dentro da alocação de nós do trabalho.
+```
+srun -n1 -c16 --mem-per-cpu=1gb server : -n16 --mem-per-cpu=1gb client
+```
 
 **sshare** exibe informações detalhadas sobre o uso de fairshare no cluster. Observe que isso só é viável quando se usa o plug-in priority/multifactor.
+```
+$ sshare --parsable --users=<User>
+```
 
 **sstat** é usado para obter informações sobre os recursos utilizados por um trabalho ou etapa de trabalho em execução.strigger é usado para definir, obter ou visualizar acionadores de eventos.Os acionadores de eventos incluem coisas como nós que caem ou trabalhos que se aproximam do limite de tempo.sview é uma interface gráfica de usuário para obter e atualizar informações de estado de trabalhos, partições e nós gerenciados pelo Slurm.
+```
+$ sstat --format=AveCPU,AvePages,AveRSS,AveVMSize,JobID -j 11
+```
 
 <!-- USAGE EXAMPLES -->
 ## Exemplos
